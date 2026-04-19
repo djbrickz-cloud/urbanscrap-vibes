@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hitjames — shared folder</title>
+  <meta name="description" content="some things live better off the feed." />
+  <link rel="canonical" href="https://feelthisvibenow.com/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --win-bg: #d4d0c8;
+      --win-face: #ece9d8;
+      --win-title: #0a246a;
+      --win-title-end: #a6caf0;
+      --win-border-light: #ffffff;
+      --win-border-dark: #808080;
+      --win-border-darker: #404040;
+      --win-blue: #0055e5;
+      --win-text: #1a1a1a;
+      --win-muted: #666;
+      --win-selected: #0a246a;
+      --win-selected-text: #fff;
+      --highlight: #ffeb3b;
+      --green-led: #00ff88;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #3a6ea5;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.03) 1px, rgba(0,0,0,0.03) 2px),
+        repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(0,0,0,0.03) 1px, rgba(0,0,0,0.03) 2px);
+      min-height: 100vh;
+      font-family: 'Roboto Condensed', 'Tahoma', sans-serif;
+      padding: 16px 8px 40px;
+      color: var(--win-text);
+    }
+
+    /* SCANLINE OVERLAY */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .desktop-icons {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+      padding: 8px;
+    }
+
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      width: 72px;
+    }
+
+    .desktop-icon .icon-img {
+      width: 40px;
+      height: 40px;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.4));
+    }
+
+    .desktop-icon span {
+      font-size: 11px;
+      color: #fff;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      line-height: 1.2;
+    }
+
+    /* WINDOW BASE */
+    .window {
+      background: var(--win-face);
+      border: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      max-width: 720px;
+      margin: 0 auto 16px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .window-titlebar {
+      background: linear-gradient(90deg, var(--win-title) 0%, var(--win-title-end) 100%);
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .titlebar-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .titlebar-icon {
+      font-size: 14px;
+    }
+
+    .titlebar-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: #fff;
+      font-weight: normal;
+      letter-spacing: 0.02em;
+    }
+
+    .titlebar-buttons {
+      display: flex;
+      gap: 2px;
+    }
+
+    .win-btn {
+      width: 16px;
+      height: 14px;
+      background: var(--win-bg);
+      border: 1px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      line-height: 1;
+    }
+
+    .menubar {
+      background: var(--win-face);
+      border-bottom: 1px solid var(--win-border-dark);
+      padding: 2px 4px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .menu-item {
+      font-size: 12px;
+      padding: 2px 6px;
+      cursor: pointer;
+      font-family: 'Roboto Condensed', sans-serif;
+    }
+
+    .menu-item:hover {
+      background: var(--win-blue);
+      color: #fff;
+    }
+
+    .toolbar {
+      background: var(--win-bg);
+      border-bottom: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toolbar-btn {
+      background: var(--win-face);
+      border: 1px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'Roboto Condensed', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .toolbar-btn:active {
+      border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
+    }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--win-border-dark);
+      margin: 0 2px;
+    }
+
+    .address-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 6px;
+      border-bottom: 1px solid var(--win-border-dark);
+      background: var(--win-face);
+      font-size: 12px;
+    }
+
+    .address-bar label {
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .address-input {
+      flex: 1;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      background: #fff;
+      border: 2px inset var(--win-border-dark);
+      padding: 2px 6px;
+      outline: none;
+    }
+
+    /* FILE EXPLORER CONTENT */
+    .explorer-content {
+      display: flex;
+      min-height: 400px;
+    }
+
+    .sidebar {
+      width: 160px;
+      background: #fff;
+      border-right: 1px solid var(--win-border-dark);
+      padding: 8px;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 12px;
+    }
+
+    .sidebar-section h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--win-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 2px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 4px;
+      cursor: pointer;
+      border-radius: 2px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sidebar-item:hover { background: #e3e7ff; }
+    .sidebar-item.active { background: var(--win-selected); color: var(--win-selected-text); }
+
+    .file-area {
+      flex: 1;
+      padding: 8px;
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    /* FILE TABLE */
+    .file-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .file-table thead tr {
+      background: var(--win-bg);
+      border-bottom: 2px solid var(--win-border-dark);
+    }
+
+    .file-table th {
+      text-align: left;
+      padding: 3px 8px;
+      font-weight: 700;
+      font-size: 11px;
+      border-right: 1px solid var(--win-border-dark);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .file-table th:hover { background: #c0bdb5; }
+
+    .file-table td {
+      padding: 4px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+
+    .file-table tr:hover td { background: #e3edff; }
+    .file-table tr.selected td {
+      background: var(--win-selected);
+      color: var(--win-selected-text);
+    }
+
+    .file-icon { margin-right: 4px; }
+
+    .file-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+    }
+
+    .status-bar {
+      background: var(--win-bg);
+      border-top: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      padding: 2px 8px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--win-muted);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* PLAYER WINDOW */
+    .player-window {
+      background: #1a1a1a;
+      border: 2px solid;
+      border-color: #555 #111 #111 #555;
+    }
+
+    .player-titlebar {
+      background: linear-gradient(90deg, #2a0a6a 0%, #6a0aaf 100%);
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .player-body {
+      padding: 12px;
+      background: #111;
+    }
+
+    .player-display {
+      background: #0a0a0a;
+      border: 2px inset #333;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-family: 'VT323', monospace;
+      color: var(--green-led);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player-display::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,0,0.02) 3px, rgba(0,255,0,0.02) 4px);
+      pointer-events: none;
+    }
+
+    .now-playing-label {
+      font-size: 11px;
+      color: #00aa55;
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .track-title-display {
+      font-size: 24px;
+      color: var(--green-led);
+      letter-spacing: 0.05em;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .track-marquee {
+      display: inline-block;
+      animation: marquee 12s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-60%); }
+    }
+
+    .player-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #00cc66;
+      font-family: 'VT323', monospace;
+      margin-top: 4px;
+    }
+
+    .player-controls {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .p-btn {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 5px 10px;
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+
+    .p-btn:hover { background: #3a3a3a; color: #fff; }
+    .p-btn.active { background: #1a3a1a; color: var(--green-led); border-color: #006600; }
+
+    .progress-bar-wrap {
+      background: #0a0a0a;
+      border: 1px inset #333;
+      height: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #006600, #00ff88);
+      width: 35%;
+      transition: width 0.3s;
+    }
+
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      color: #888;
+    }
+
+    input[type=range].vol-slider {
+      flex: 1;
+      height: 4px;
+      accent-color: #00ff88;
+    }
+
+    /* EMBED PANEL */
+    .embed-panel {
+      display: none;
+      border-top: 2px inset #333;
+      background: #0f0f0f;
+      padding: 12px;
+    }
+
+    .embed-panel.open { display: block; }
+
+    .embed-panel iframe {
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+
+    /* ACCESS WINDOW */
+    .access-window {
+      background: var(--win-face);
+      border: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      max-width: 480px;
+      margin: 0 auto 16px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .dialog-body {
+      padding: 16px;
+    }
+
+    .dialog-icon-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .dialog-icon-big {
+      font-size: 40px;
+      flex-shrink: 0;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+    }
+
+    .dialog-text h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .dialog-text p {
+      font-size: 12px;
+      color: var(--win-muted);
+      line-height: 1.5;
+    }
+
+    .dialog-text .access-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      background: #fff;
+      border: 1px inset #aaa;
+      padding: 4px 8px;
+      margin-top: 8px;
+      color: #666;
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+      font-weight: 700;
+    }
+
+    .form-group input[type="email"] {
+      width: 100%;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      background: #fff;
+      border: 2px inset var(--win-border-dark);
+      padding: 4px 6px;
+      outline: none;
+      color: #1a1a1a;
+    }
+
+    .form-group input[type="email"]:focus {
+      outline: 1px dotted var(--win-blue);
+    }
+
+    .dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .dialog-btn {
+      min-width: 80px;
+      background: var(--win-face);
+      border: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Roboto Condensed', sans-serif;
+    }
+
+    .dialog-btn:active {
+      border-color: var(--win-border-darker) var(--win-border-light) var(--win-border-light) var(--win-border-darker);
+    }
+
+    .dialog-btn.primary {
+      background: var(--win-blue);
+      color: #fff;
+      border-color: var(--win-border-light) #003399 #003399 var(--win-border-light);
+      font-weight: 700;
+    }
+
+    /* SCRAPBOOK WINDOW */
+    .scrap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 2px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .scrap-item {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      aspect-ratio: 1;
+      background: #eee;
+    }
+
+    .scrap-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.85) contrast(1.05);
+      transition: filter 0.2s;
+    }
+
+    .scrap-item:hover img { filter: saturate(1.1) brightness(1.05); }
+
+    .scrap-item .scrap-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      padding: 3px 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .scrap-item:hover .scrap-label { opacity: 1; }
+
+    /* DOWNLOAD PROGRESS */
+    .download-widget {
+      background: var(--win-face);
+      border: 2px inset var(--win-border-dark);
+      padding: 10px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .download-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+    }
+
+    .dl-bar {
+      background: #fff;
+      border: 1px inset #aaa;
+      height: 14px;
+      margin-bottom: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dl-fill {
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        #0055e5 0px,
+        #0055e5 8px,
+        #3388ff 8px,
+        #3388ff 16px
+      );
+      animation: dlmove 0.8s linear infinite;
+      transition: width 0.5s;
+    }
+
+    @keyframes dlmove {
+      0% { background-position: 0 0; }
+      100% { background-position: 16px 0; }
+    }
+
+    /* TOOLTIP */
+    .tooltip-bar {
+      background: #ffffc0;
+      border: 1px solid #808000;
+      padding: 3px 6px;
+      font-size: 11px;
+      display: inline-block;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* STATUS ROW */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #006600;
+    }
+
+    .led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-led);
+      box-shadow: 0 0 4px var(--green-led);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* NOTIFICATION BAR */
+    .notif-bar {
+      background: var(--highlight);
+      border: 1px solid #b8a000;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      text-align: center;
+      margin: 4px 0;
+    }
+
+    /* TASKBAR */
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: var(--win-bg);
+      border-top: 2px solid var(--win-border-light);
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .start-btn {
+      background: var(--win-face);
+      border: 2px solid;
+      border-color: var(--win-border-light) var(--win-border-darker) var(--win-border-darker) var(--win-border-light);
+      padding: 2px 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .taskbar-sep { width: 2px; height: 20px; background: var(--win-border-dark); margin: 0 2px; }
+
+    .taskbar-task {
+      background: var(--win-bg);
+      border: 2px inset var(--win-border-dark);
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Roboto Condensed', sans-serif;
+      white-space: nowrap;
+    }
+
+    .taskbar-clock {
+      margin-left: auto;
+      background: var(--win-face);
+      border: 2px inset var(--win-border-dark);
+      padding: 2px 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      .scrap-grid { grid-template-columns: repeat(2, 1fr); }
+      .file-table th:nth-child(3), .file-table td:nth-child(3),
+      .file-table th:nth-child(4), .file-table td:nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DESKTOP ICONS -->
+<div class="desktop-icons">
+  <div class="desktop-icon">
+    <div class="icon-img">📁</div>
+    <span>hitjames<br>files</span>
+  </div>
+  <div class="desktop-icon">
+    <div class="icon-img">🎵</div>
+    <span>My Music</span>
+  </div>
+  <div class="desktop-icon">
+    <div class="icon-img">🌐</div>
+    <span>Connect</span>
+  </div>
+</div>
+
+<!-- NOTIFICATION BAR -->
+<div class="notif-bar" style="max-width:720px;margin:0 auto 10px;">
+  ⚠ This folder is shared. You have READ-ONLY access. Request write permissions to download all files.
+</div>
+
+<!-- MAIN FILE EXPLORER WINDOW -->
+<div class="window">
+  <div class="window-titlebar">
+    <div class="titlebar-left">
+      <span class="titlebar-icon">📁</span>
+      <span class="titlebar-text">hitjames — \\MUSIC\shared\vibes [Read Only]</span>
+    </div>
+    <div class="titlebar-buttons">
+      <div class="win-btn">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="menubar">
+    <span class="menu-item">File</span>
+    <span class="menu-item">Edit</span>
+    <span class="menu-item">View</span>
+    <span class="menu-item">Favorites</span>
+    <span class="menu-item">Tools</span>
+    <span class="menu-item">Help</span>
+  </div>
+
+  <div class="toolbar">
+    <button class="toolbar-btn">◀ Back</button>
+    <button class="toolbar-btn">▶ Forward</button>
+    <button class="toolbar-btn">⬆ Up</button>
+    <div class="toolbar-sep"></div>
+    <button class="toolbar-btn">🔍 Search</button>
+    <button class="toolbar-btn">📁 Folders</button>
+    <div class="toolbar-sep"></div>
+    <div class="connection-status">
+      <div class="led"></div>
+      <span>CONNECTED · 256 users online</span>
+    </div>
+  </div>
+
+  <div class="address-bar">
+    <label>Address:</label>
+    <input class="address-input" value="\\hitjames\music\released_not_released\" readonly />
+    <button class="toolbar-btn">Go</button>
+  </div>
+
+  <div class="explorer-content">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h4>Folders</h4>
+        <div class="sidebar-item active">📁 vibes</div>
+        <div class="sidebar-item">📁 sessions</div>
+        <div class="sidebar-item">📁 unreleased</div>
+        <div class="sidebar-item">🔒 private</div>
+      </div>
+      <div class="sidebar-section">
+        <h4>Network</h4>
+        <div class="sidebar-item">🖥 hitjames-pc</div>
+        <div class="sidebar-item">📡 shared</div>
+      </div>
+      <div class="sidebar-section">
+        <h4>File Details</h4>
+        <div style="font-size:11px;color:var(--win-muted);line-height:1.8;font-family:'Share Tech Mono',monospace">
+          Type: AUDIO<br>
+          Modified:<br>various<br>
+          Owner:<br>hitjames<br>
+          Access:<br>public (r/o)
+        </div>
+      </div>
+    </div>
+
+    <div class="file-area">
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th style="width:40%">Name ▲</th>
+            <th style="width:15%">Size</th>
+            <th style="width:18%">Type</th>
+            <th style="width:27%">Date Modified</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- FINAL MIX -->
+          <tr class="file-row" data-embed="embed-final" data-track="Final Mix (EP)" data-size="42.3 MB">
+            <td>
+              <div class="file-name-cell">
+                <span>🎵</span>
+                <span>final_mix_ep.mp3</span>
+              </div>
+            </td>
+            <td>42.3 MB</td>
+            <td>MP3 Audio</td>
+            <td>12/14/2024 11:22 PM</td>
+          </tr>
+          <tr id="embed-final" class="embed-row" style="display:none">
+            <td colspan="4" style="padding:0;">
+              <div style="background:#f5f5f5;padding:12px;">
+                <div class="download-widget">
+                  <div class="download-row">
+                    <span>Streaming: final_mix_ep.mp3</span>
+                    <span>256kbps · stereo</span>
+                  </div>
+                  <div class="dl-bar"><div class="dl-fill" style="width:100%"></div></div>
+                  <div class="download-row" style="color:var(--win-muted)">Buffered: 100% · Peers: 12</div>
+                </div>
+                <div style="margin-top:10px">
+                  <iframe src="https://hypeddit.com/m0lxon?embed=1" width="100%" height="500" frameborder="0" style="border-radius:4px;border:1px solid #ccc;" loading="lazy"></iframe>
+                </div>
+                <div style="margin-top:8px;font-size:11px;color:var(--win-muted);font-family:'Share Tech Mono',monospace;text-align:right">
+                  want full download access? → <a href="https://www.even.biz/r/final-mix" target="_blank" style="color:var(--win-blue)">request permissions</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- MIRROR MUSIC -->
+          <tr class="file-row" data-embed="embed-mirror" data-track="Mirror Music" data-size="38.1 MB">
+            <td>
+              <div class="file-name-cell">
+                <span>🎵</span>
+                <span>mirror_music.mp3</span>
+              </div>
+            </td>
+            <td>38.1 MB</td>
+            <td>MP3 Audio</td>
+            <td>11/02/2024 2:44 AM</td>
+          </tr>
+          <tr id="embed-mirror" class="embed-row" style="display:none">
+            <td colspan="4" style="padding:0;">
+              <div style="background:#f5f5f5;padding:12px;">
+                <div class="download-widget">
+                  <div class="download-row">
+                    <span>Streaming: mirror_music.mp3</span>
+                    <span>192kbps · stereo</span>
+                  </div>
+                  <div class="dl-bar"><div class="dl-fill" style="width:100%"></div></div>
+                  <div class="download-row" style="color:var(--win-muted)">Buffered: 100% · Peers: 7</div>
+                </div>
+                <div style="margin-top:10px">
+                  <iframe src="https://hypeddit.com/qpdqzh?embed=1" width="100%" height="500" frameborder="0" style="border-radius:4px;border:1px solid #ccc;" loading="lazy"></iframe>
+                </div>
+                <div style="margin-top:8px;font-size:11px;color:var(--win-muted);font-family:'Share Tech Mono',monospace;text-align:right">
+                  this one lives quietly elsewhere → <a href="https://www.even.biz/r/mirror-music" target="_blank" style="color:var(--win-blue)">support & download</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- LOWLIGHT -->
+          <tr class="file-row" data-embed="embed-lowlight" data-track="Lowlight (EP)" data-size="55.7 MB">
+            <td>
+              <div class="file-name-cell">
+                <span>🎵</span>
+                <span>lowlight_ep.mp3</span>
+              </div>
+            </td>
+            <td>55.7 MB</td>
+            <td>MP3 Audio</td>
+            <td>09/28/2024 12:01 AM</td>
+          </tr>
+          <tr id="embed-lowlight" class="embed-row" style="display:none">
+            <td colspan="4" style="padding:0;">
+              <div style="background:#f5f5f5;padding:12px;">
+                <div class="download-widget">
+                  <div class="download-row">
+                    <span>Streaming: lowlight_ep.mp3</span>
+                    <span>320kbps · stereo</span>
+                  </div>
+                  <div class="dl-bar"><div class="dl-fill" style="width:100%"></div></div>
+                  <div class="download-row" style="color:var(--win-muted)">Buffered: 100% · Peers: 19</div>
+                </div>
+                <div style="margin-top:10px">
+                  <iframe src="https://hypeddit.com/akzd27?embed=1" width="100%" height="500" frameborder="0" style="border-radius:4px;border:1px solid #ccc;" loading="lazy"></iframe>
+                </div>
+                <div style="margin-top:8px;font-size:11px;color:var(--win-muted);font-family:'Share Tech Mono',monospace;text-align:right">
+                  some records sound better in the dark → <a href="https://www.even.biz/r/lowlight-ep" target="_blank" style="color:var(--win-blue)">unlock lowlight</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- LOCKED FILES -->
+          <tr style="opacity:0.5;cursor:not-allowed">
+            <td>
+              <div class="file-name-cell">
+                <span>🔒</span>
+                <span>late_night_sessions_vol2.mp3</span>
+              </div>
+            </td>
+            <td>71.4 MB</td>
+            <td>MP3 Audio</td>
+            <td>01/11/2025 3:30 AM</td>
+          </tr>
+          <tr style="opacity:0.5;cursor:not-allowed">
+            <td>
+              <div class="file-name-cell">
+                <span>🔒</span>
+                <span>unreleased_rough_jan25.wav</span>
+              </div>
+            </td>
+            <td>218.9 MB</td>
+            <td>WAV Audio</td>
+            <td>01/19/2025 4:12 AM</td>
+          </tr>
+          <tr style="opacity:0.5;cursor:not-allowed">
+            <td>
+              <div class="file-name-cell">
+                <span>🔒</span>
+                <span>scratch_vocal_take3.mp3</span>
+              </div>
+            </td>
+            <td>29.2 MB</td>
+            <td>MP3 Audio</td>
+            <td>02/04/2025 1:55 AM</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>6 objects (3 accessible, 3 restricted) · 455.6 MB</span>
+    <span>📡 hitjames-network · Connected</span>
+  </div>
+</div>
+
+<!-- ACCESS REQUEST DIALOG -->
+<div class="access-window">
+  <div class="window-titlebar">
+    <div class="titlebar-left">
+      <span class="titlebar-icon">🔐</span>
+      <span class="titlebar-text">Request Network Access — Authentication Required</span>
+    </div>
+    <div class="titlebar-buttons">
+      <div class="win-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="dialog-body">
+    <div class="dialog-icon-row">
+      <div class="dialog-icon-big">🔒</div>
+      <div class="dialog-text">
+        <h3>Restricted Files Detected</h3>
+        <p>3 files in this shared folder require authenticated access. Enter your email address to request download permissions from the folder owner.</p>
+        <code class="access-code">\\hitjames\music\late_night_sessions\ — [LOCKED]</code>
+      </div>
+    </div>
+
+    <form action="https://gmail.us20.list-manage.com/subscribe/post?u=c20b8bf747ae0151fe8b77576&id=dc3ade8c53&f_id=00bd2deef0" method="post" target="_blank" onsubmit="handleAccessRequest(event)">
+      <div class="form-group">
+        <label for="email-input">Email Address:</label>
+        <input type="email" id="email-input" name="EMAIL" placeholder="your@email.com" required />
+      </div>
+
+      <div style="font-size:11px;color:var(--win-muted);font-family:'Share Tech Mono',monospace;margin-bottom:10px;background:#f5f5f5;border:1px inset #ccc;padding:6px;">
+        ℹ You will receive a confirmation when the folder owner grants access. Restricted files include late night session recordings, rough cuts, and unreleased material.
+      </div>
+
+      <div class="dialog-buttons">
+        <button type="button" class="dialog-btn">Cancel</button>
+        <button type="submit" class="dialog-btn primary">Request Access</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PLAYER WINDOW -->
+<div class="window player-window" id="player-win" style="display:none;max-width:720px;margin:0 auto 16px;">
+  <div class="player-titlebar">
+    <div class="titlebar-left">
+      <span class="titlebar-icon">🎵</span>
+      <span class="titlebar-text" style="color:#fff;font-family:'VT323',monospace;font-size:14px;letter-spacing:0.1em">HJ_PLAYER v2.4 — NOW STREAMING</span>
+    </div>
+    <div class="titlebar-buttons">
+      <div class="win-btn" style="background:#333;color:#aaa;border-color:#555 #111 #111 #555">_</div>
+      <div class="win-btn" style="background:#333;color:#aaa;border-color:#555 #111 #111 #555">✕</div>
+    </div>
+  </div>
+
+  <div class="player-body">
+    <div class="player-display">
+      <div class="now-playing-label">NOW PLAYING</div>
+      <div class="track-title-display">
+        <span class="track-marquee" id="player-track-name">—</span>
+      </div>
+      <div class="player-meta">
+        <span>BITRATE: 256kbps</span>
+        <span>FORMAT: .MP3</span>
+        <span id="player-time">00:00 / --:--</span>
+      </div>
+    </div>
+
+    <div class="player-controls">
+      <button class="p-btn">|◀◀</button>
+      <button class="p-btn active" id="play-pause-btn">▶ PLAY</button>
+      <button class="p-btn">▶▶|</button>
+      <button class="p-btn">■ STOP</button>
+      <button class="p-btn">🔀 SHUF</button>
+      <button class="p-btn">↻ LOOP</button>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="player-progress"></div>
+    </div>
+
+    <div class="volume-row">
+      <span>VOL</span>
+      <input type="range" class="vol-slider" min="0" max="100" value="80" />
+      <span>80%</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCRAPBOOK WINDOW -->
+<div class="window" style="max-width:720px;margin:0 auto 16px;">
+  <div class="window-titlebar">
+    <div class="titlebar-left">
+      <span class="titlebar-icon">🖼</span>
+      <span class="titlebar-text">hitjames — images & scrap</span>
+    </div>
+    <div class="titlebar-buttons">
+      <div class="win-btn">_</div>
+      <div class="win-btn">□</div>
+      <div class="win-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="menubar">
+    <span class="menu-item">File</span>
+    <span class="menu-item">View</span>
+    <span class="menu-item">Slideshow</span>
+  </div>
+
+  <div style="background:#fff;padding:6px 8px;border-bottom:1px solid #ccc;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--win-muted)">
+    Showing 8 of 24 items · sorted by date · thumbnail view
+  </div>
+
+  <div class="scrap-grid">
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/IMG_0550.jpeg" alt="scrap" />
+      <div class="scrap-label">IMG_0550.jpeg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/IMG_0098.png" alt="scrap" />
+      <div class="scrap-label">IMG_0098.png</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/od_photo-1958_singular_display_fullPicture.jpeg" alt="scrap" />
+      <div class="scrap-label">od_photo-1958.jpeg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/Resized_Resized_20251209_141154001.jpeg" alt="scrap" />
+      <div class="scrap-label">20251209_141154.jpeg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/photo-5500_singular_display_fullPicture.jpg" alt="scrap" />
+      <div class="scrap-label">photo-5500.jpg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/od_photo-14932_singular_display_fullPicture.jpg" alt="scrap" />
+      <div class="scrap-label">od_photo-14932.jpg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/IMG_A8387B9F-6522-4135-8206-FD3FE94553A1.jpg" alt="scrap" />
+      <div class="scrap-label">IMG_A8387B.jpg</div>
+    </div>
+    <div class="scrap-item">
+      <img src="https://huggingface.co/spaces/HitJames/urbanscrap-vibes-playbook/resolve/main/images/IMG_1354.jpg" alt="scrap" />
+      <div class="scrap-label">IMG_1354.jpg</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span>8 objects selected · 0 bytes</span>
+    <span>View: Thumbnails</span>
+  </div>
+</div>
+
+<!-- FAKE TASKBAR -->
+<div class="taskbar">
+  <button class="start-btn">🪟 Start</button>
+  <div class="taskbar-sep"></div>
+  <div class="taskbar-task">📁 hitjames — vibes</div>
+  <div class="taskbar-task">🎵 HJ_Player</div>
+  <div class="taskbar-task">🖼 scrapbook</div>
+  <div class="taskbar-clock" id="taskbar-clock">12:00 AM</div>
+</div>
+
+<script>
+  /* ── CLOCK ── */
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('taskbar-clock').textContent =
+      h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 15000);
+
+  /* ── CONTEXT MENU ── */
+  const ctx = document.createElement('div');
+  ctx.id = 'ctx-menu';
+  ctx.style.cssText = 'display:none;position:fixed;z-index:9998;background:#ece9d8;border:2px solid;border-color:#fff #404040 #404040 #fff;min-width:160px;box-shadow:2px 2px 4px rgba(0,0,0,0.4);font-size:12px;font-family:"Roboto Condensed",sans-serif;';
+  document.body.appendChild(ctx);
+
+  function ctxItem(label, action, sep) {
+    if (sep) {
+      const d = document.createElement('div');
+      d.style.cssText = 'height:1px;background:#808080;margin:2px 4px;';
+      ctx.appendChild(d); return;
+    }
+    const el = document.createElement('div');
+    el.textContent = label;
+    el.style.cssText = 'padding:4px 20px;cursor:pointer;white-space:nowrap;';
+    el.onmouseenter = () => { el.style.background='#0a246a'; el.style.color='#fff'; };
+    el.onmouseleave = () => { el.style.background=''; el.style.color=''; };
+    el.onclick = () => { action && action(); closeCtx(); };
+    ctx.appendChild(el);
+  }
+
+  function openCtx(e, items) {
+    e.preventDefault();
+    ctx.innerHTML = '';
+    items.forEach(i => ctxItem(i.label, i.action, i.sep));
+    ctx.style.display = 'block';
+    let x = e.clientX, y = e.clientY;
+    if (x + 180 > window.innerWidth) x = window.innerWidth - 185;
+    if (y + ctx.offsetHeight + 40 > window.innerHeight) y = e.clientY - ctx.offsetHeight;
+    ctx.style.left = x + 'px'; ctx.style.top = y + 'px';
+  }
+  function closeCtx() { ctx.style.display = 'none'; }
+  document.addEventListener('click', closeCtx);
+  document.addEventListener('keydown', e => e.key === 'Escape' && closeCtx());
+
+  /* ── TOOLTIP ── */
+  const tip = document.createElement('div');
+  tip.style.cssText = 'display:none;position:fixed;z-index:9997;background:#ffffc0;border:1px solid #808000;padding:3px 7px;font-size:11px;font-family:"Share Tech Mono",monospace;pointer-events:none;';
+  document.body.appendChild(tip);
+  function showTip(e, text) {
+    tip.textContent = text; tip.style.display = 'block';
+    tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+  }
+  function hideTip() { tip.style.display = 'none'; }
+
+  /* ── TOAST NOTIFICATION ── */
+  function toast(msg, dur=2800) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:38px;right:8px;background:#ece9d8;border:2px solid;border-color:#fff #404040 #404040 #fff;padding:6px 12px;font-size:11px;font-family:"Share Tech Mono",monospace;z-index:9990;box-shadow:2px 2px 4px rgba(0,0,0,0.4);max-width:260px;';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), dur);
+  }
+
+  /* ── WINDOW CLOSE / MINIMIZE BUTTONS ── */
+  // Map each window's close/min buttons
+  document.querySelectorAll('.window, .access-window').forEach(win => {
+    const btns = win.querySelectorAll('.win-btn');
+    // _ = minimize (collapse), □ = maximize toggle, ✕ = close
+    btns.forEach(btn => {
+      btn.style.cursor = 'pointer';
+      btn.addEventListener('click', () => {
+        const t = btn.textContent.trim();
+        if (t === '✕') {
+          win.style.display = 'none';
+          toast('Window closed.');
+        } else if (t === '_') {
+          const content = win.querySelectorAll(':scope > *:not(.window-titlebar)');
+          const isMin = win.dataset.minimized === '1';
+          content.forEach(el => el.style.display = isMin ? '' : 'none');
+          win.dataset.minimized = isMin ? '0' : '1';
+        } else if (t === '□') {
+          toast('Maximize: already at full width.');
+        }
+      });
+    });
+  });
+
+  /* ── MENUBAR ITEMS ── */
+  document.querySelectorAll('.menubar .menu-item').forEach(item => {
+    item.addEventListener('click', e => {
+      const label = item.textContent.trim();
+      const menuMap = {
+        'File': [
+          {label:'Open',        action:()=>toast('Open: select a file first.')},
+          {label:'Save As…',    action:()=>toast('Save As: read-only share.')},
+          {sep:true},
+          {label:'Properties',  action:()=>toast('Owner: hitjames  |  Access: public (r/o)')},
+          {sep:true},
+          {label:'Close',       action:()=>item.closest('.window,.access-window').style.display='none'},
+        ],
+        'Edit': [
+          {label:'Select All',  action:()=>{ document.querySelectorAll('.file-row').forEach(r=>r.classList.add('selected')); toast('6 items selected.'); }},
+          {label:'Copy',        action:()=>toast('Copy: no write access on this share.')},
+          {sep:true},
+          {label:'Find…',       action:()=>toast('Search not available on read-only share.')},
+        ],
+        'View': [
+          {label:'Thumbnails',  action:()=>toast('View: Thumbnails')},
+          {label:'Details',     action:()=>toast('View: Details (current)')},
+          {label:'List',        action:()=>toast('View: List')},
+          {sep:true},
+          {label:'Refresh',     action:()=>{ toast('Refreshing share…'); setTimeout(()=>toast('Share up to date.'),1200); }},
+        ],
+        'Favorites': [
+          {label:'Add to Favorites', action:()=>toast('Added: hitjames\\vibes')},
+          {label:'Organize…',        action:()=>toast('Organize Favorites')},
+        ],
+        'Tools': [
+          {label:'Map Network Drive…', action:()=>toast('Mapping: \\\\hitjames\\music')},
+          {label:'Disconnect…',        action:()=>toast('Disconnect from share?')},
+          {sep:true},
+          {label:'Folder Options…',    action:()=>toast('Folder Options')},
+        ],
+        'Help': [
+          {label:'Help Topics',  action:()=>toast('No help available for this share.')},
+          {sep:true},
+          {label:'About…',       action:()=>toast('hitjames file share  |  v0.1  |  feel this vibe')},
+        ],
+        'Slideshow': [
+          {label:'Start Slideshow', action:()=>toast('Starting slideshow… (press Esc to stop)')},
+          {label:'Shuffle',         action:()=>toast('Shuffle: ON')},
+        ],
+      };
+      const items = menuMap[label];
+      if (items) openCtx(e, items);
+    });
+  });
+
+  /* ── TOOLBAR BUTTONS ── */
+  document.querySelectorAll('.toolbar-btn').forEach(btn => {
+    const label = btn.textContent.trim();
+    const tipMap = {
+      '◀ Back':'Go back','▶ Forward':'Go forward','⬆ Up':'Up one level',
+      '🔍 Search':'Search this folder','📁 Folders':'Toggle folder pane',
+      'Go':'Navigate to address',
+    };
+    if (tipMap[label]) {
+      btn.addEventListener('mouseenter', e => showTip(e, tipMap[label]));
+      btn.addEventListener('mouseleave', hideTip);
+    }
+    btn.addEventListener('click', () => {
+      if (label === '◀ Back') { toast('No previous location.'); return; }
+      if (label === '▶ Forward') { toast('No forward location.'); return; }
+      if (label === '⬆ Up') { toast('\\\\hitjames\\music — parent folder'); return; }
+      if (label === '🔍 Search') { toast('Search: type a filename to filter…'); return; }
+      if (label === '📁 Folders') {
+        const sb = document.querySelector('.sidebar');
+        if (sb) sb.style.display = sb.style.display === 'none' ? '' : 'none';
+        return;
+      }
+      if (label === 'Go') { toast('Navigating to address…'); return; }
+    });
+  });
+
+  /* ── ADDRESS BAR ── */
+  const addrInput = document.querySelector('.address-input');
+  addrInput && addrInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') toast('Navigating: ' + addrInput.value);
+  });
+
+  /* ── DESKTOP ICONS ── */
+  document.querySelectorAll('.desktop-icon').forEach(icon => {
+    icon.addEventListener('dblclick', () => {
+      const label = icon.querySelector('span').textContent.trim();
+      if (label.includes('hitjames') || label.includes('files')) {
+        document.querySelector('.window').scrollIntoView({behavior:'smooth'});
+      } else if (label.includes('Music')) {
+        document.getElementById('player-win') && document.getElementById('player-win').scrollIntoView({behavior:'smooth'});
+      } else {
+        document.querySelector('.scrap-grid') && document.querySelector('.scrap-grid').scrollIntoView({behavior:'smooth'});
+      }
+    });
+    icon.addEventListener('contextmenu', e => {
+      openCtx(e, [
+        {label:'Open',       action:()=>icon.dispatchEvent(new MouseEvent('dblclick'))},
+        {label:'Copy',       action:()=>toast('Copy: read-only.')},
+        {sep:true},
+        {label:'Properties', action:()=>toast('Type: Folder  |  Owner: hitjames')},
+      ]);
+    });
+    icon.addEventListener('mouseenter', e => showTip(e, 'Double-click to open'));
+    icon.addEventListener('mouseleave', hideTip);
+  });
+
+  /* ── LOCKED FILE ROWS ── */
+  document.querySelectorAll('tr[style*="opacity:0.5"]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', () => {
+      // scroll to the access dialog
+      document.querySelector('.access-window').scrollIntoView({behavior:'smooth', block:'center'});
+      // flash the dialog
+      const dlg = document.querySelector('.access-window');
+      dlg.style.outline = '2px solid #0055e5';
+      setTimeout(()=>dlg.style.outline='',1200);
+      toast('🔒 Access denied — request permissions below.');
+    });
+    row.addEventListener('contextmenu', e => {
+      openCtx(e, [
+        {label:'Open',            action:()=>row.click()},
+        {label:'Request Access',  action:()=>row.click()},
+        {sep:true},
+        {label:'Properties',      action:()=>toast('Status: Restricted  |  Request access to download.')},
+      ]);
+    });
+  });
+
+  /* ── FILE ROW TOGGLE + PLAYER ── */
+  let activeEmbed = null;
+  let progressInterval;
+  let isPlaying = false;
+
+  function simulateProgress(total) {
+    clearInterval(progressInterval);
+    let p = 0;
+    const bar = document.getElementById('player-progress');
+    const timeEl = document.getElementById('player-time');
+    progressInterval = setInterval(() => {
+      if (!isPlaying) return;
+      p += 0.12;
+      if (p > 100) p = 0;
+      bar.style.width = p + '%';
+      const elapsed = Math.floor(p / 100 * total);
+      const em = Math.floor(elapsed/60), es = elapsed%60;
+      const tm = Math.floor(total/60), ts = total%60;
+      timeEl.textContent =
+        String(em).padStart(2,'0')+':'+String(es).padStart(2,'0')+' / '+
+        String(tm).padStart(2,'0')+':'+String(ts).padStart(2,'0');
+    }, 300);
+  }
+
+  function setPlayerState(playing) {
+    isPlaying = playing;
+    const btn = document.getElementById('play-pause-btn');
+    if (btn) { btn.textContent = playing ? '⏸ PAUSE' : '▶ PLAY'; btn.classList.toggle('active', playing); }
+  }
+
+  document.querySelectorAll('.file-row').forEach(row => {
+    row.style.cursor = 'pointer';
+
+    row.addEventListener('contextmenu', e => {
+      openCtx(e, [
+        {label:'Open / Stream',  action:()=>row.click()},
+        {label:'Copy Path',      action:()=>toast('Copied: \\\\hitjames\\music\\'+row.querySelector('.file-name-cell span:last-child').textContent)},
+        {sep:true},
+        {label:'Properties',     action:()=>toast(row.dataset.track+'  |  '+row.dataset.size+'  |  MP3 Audio')},
+      ]);
+    });
+
+    row.addEventListener('click', () => {
+      const embedId  = row.dataset.embed;
+      const trackName = row.dataset.track;
+      const trackSize = row.dataset.size;
+      const embedRow  = document.getElementById(embedId);
+      const player    = document.getElementById('player-win');
+
+      document.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
+      document.querySelectorAll('.embed-row').forEach(r => r.style.display = 'none');
+
+      if (activeEmbed === embedId) {
+        activeEmbed = null;
+        player.style.display = 'none';
+        setPlayerState(false);
+        clearInterval(progressInterval);
+        return;
+      }
+
+      row.classList.add('selected');
+      embedRow.style.display = 'table-row';
+      activeEmbed = embedId;
+
+      // Show + populate player
+      player.style.display = 'block';
+      document.getElementById('player-track-name').textContent =
+        trackName + '  ·  hitjames  ·  ·  ·  ' + trackName + '  ·  hitjames  ·  ·  ·  ';
+
+      const total = 180 + Math.floor(Math.random() * 120);
+      setPlayerState(true);
+      simulateProgress(total);
+
+      // Scroll embed into view after short delay
+      setTimeout(() => {
+        embedRow.scrollIntoView({behavior:'smooth', block:'center'});
+        toast('▶ Streaming: ' + trackName + ' — click play in the embed below');
+      }, 200);
+    });
+  });
+
+  /* ── PLAYER BUTTONS ── */
+  document.getElementById('play-pause-btn').addEventListener('click', () => {
+    if (!activeEmbed) { toast('Select a file to stream.'); return; }
+    isPlaying = !isPlaying;
+    setPlayerState(isPlaying);
+    // scroll to the active embed so user can interact with Hypeddit
+    const activeEmbedEl = document.getElementById(activeEmbed);
+    if (activeEmbedEl) activeEmbedEl.scrollIntoView({behavior:'smooth', block:'center'});
+    toast(isPlaying ? '▶ Streaming — interact with the player below' : '⏸ Paused');
+  });
+
+  // Skip next
+  document.querySelectorAll('.p-btn').forEach(btn => {
+    const t = btn.textContent.trim();
+    if (t === '▶▶|') btn.addEventListener('click', () => {
+      const rows = [...document.querySelectorAll('.file-row')];
+      const cur  = rows.findIndex(r => r.classList.contains('selected'));
+      const next = rows[(cur + 1) % rows.length];
+      next && next.click();
+    });
+    if (t === '|◀◀') btn.addEventListener('click', () => {
+      const rows = [...document.querySelectorAll('.file-row')];
+      const cur  = rows.findIndex(r => r.classList.contains('selected'));
+      const prev = rows[(cur - 1 + rows.length) % rows.length];
+      prev && prev.click();
+    });
+    if (t === '■ STOP') btn.addEventListener('click', () => {
+      setPlayerState(false);
+      clearInterval(progressInterval);
+      document.getElementById('player-progress').style.width = '0%';
+      document.getElementById('player-time').textContent = '00:00 / --:--';
+      toast('■ Stopped.');
+    });
+    if (t === '🔀 SHUF') btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      toast(btn.classList.contains('active') ? 'Shuffle: ON' : 'Shuffle: OFF');
+    });
+    if (t === '↻ LOOP') btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      toast(btn.classList.contains('active') ? 'Loop: ON' : 'Loop: OFF');
+    });
+  });
+
+  /* ── PROGRESS BAR SCRUB ── */
+  document.querySelector('.progress-bar-wrap').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const pct  = ((e.clientX - rect.left) / rect.width) * 100;
+    document.getElementById('player-progress').style.width = pct + '%';
+  });
+
+  /* ── VOLUME SLIDER ── */
+  document.querySelector('.vol-slider').addEventListener('input', function() {
+    this.nextElementSibling.textContent = Math.round(this.value) + '%';
+  });
+
+  /* ── TASKBAR TASKS ── */
+  const taskItems = [...document.querySelectorAll('.taskbar-task')];
+  if (taskItems[0]) taskItems[0].addEventListener('click', () =>
+    document.querySelector('.window').scrollIntoView({behavior:'smooth'}));
+  if (taskItems[1]) taskItems[1].addEventListener('click', () => {
+    const p = document.getElementById('player-win');
+    if (p.style.display === 'none') { toast('No track selected — click a file first.'); }
+    else p.scrollIntoView({behavior:'smooth'});
+  });
+  if (taskItems[2]) taskItems[2].addEventListener('click', () =>
+    document.querySelector('.scrap-grid').scrollIntoView({behavior:'smooth'}));
+
+  /* ── START BUTTON ── */
+  document.querySelector('.start-btn').addEventListener('click', e => {
+    openCtx(e, [
+      {label:'📁  hitjames — vibes',  action:()=>document.querySelector('.window').scrollIntoView({behavior:'smooth'})},
+      {label:'🎵  HJ_Player',         action:()=>document.getElementById('player-win').scrollIntoView({behavior:'smooth'})},
+      {label:'🖼  Scrapbook',          action:()=>document.querySelector('.scrap-grid').scrollIntoView({behavior:'smooth'})},
+      {sep:true},
+      {label:'🔐  Request Access',     action:()=>document.querySelector('.access-window').scrollIntoView({behavior:'smooth', block:'center'})},
+      {sep:true},
+      {label:'Shut Down…',            action:()=>toast('Shutting down… just kidding.')},
+    ]);
+  });
+
+  /* ── SCRAP IMAGES right-click ── */
+  document.querySelectorAll('.scrap-item').forEach(item => {
+    const fname = item.querySelector('.scrap-label').textContent;
+    item.addEventListener('contextmenu', e => {
+      openCtx(e, [
+        {label:'Open',         action:()=>window.open(item.querySelector('img').src,'_blank')},
+        {label:'View Full',    action:()=>window.open(item.querySelector('img').src,'_blank')},
+        {sep:true},
+        {label:'Properties',   action:()=>toast(fname+'  |  Image File  |  hitjames')},
+      ]);
+    });
+    item.addEventListener('mouseenter', e => showTip(e, fname));
+    item.addEventListener('mouseleave', hideTip);
+    item.addEventListener('dblclick', () => window.open(item.querySelector('img').src,'_blank'));
+  });
+
+  /* ── SIDEBAR ITEMS ── */
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+      item.classList.add('active');
+      if (item.textContent.includes('private') || item.textContent.includes('🔒')) {
+        document.querySelector('.access-window').scrollIntoView({behavior:'smooth',block:'center'});
+        toast('🔒 Private folder — authentication required.');
+      } else {
+        toast('Folder: ' + item.textContent.trim());
+      }
+    });
+  });
+
+  /* ── ACCESS FORM ── */
+  function handleAccessRequest(e) {
+    const btn = document.querySelector('.dialog-btn.primary');
+    btn.textContent = 'Requesting…';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = '✓ Request Sent';
+      btn.style.background = '#006600';
+      btn.style.borderColor = '#004400';
+      toast('✓ Access request sent — the owner will grant permissions shortly.');
+    }, 1400);
+  }
+
+  /* ── NOTIFICATION BAR dismiss ── */
+  const notif = document.querySelector('.notif-bar');
+  if (notif) {
+    notif.style.cursor = 'pointer';
+    notif.title = 'Click to dismiss';
+    notif.addEventListener('click', () => notif.style.display = 'none');
+  }
+</script>
+
+</body>
+</html>
